@@ -1,98 +1,78 @@
 <template>
   <div class="center">
-    <button class="btn" :disabled="isDisabled" @click="toggleIt" v-bind:class="{ active: toggle }"></button>
+    <button
+      class="btn"
+      :disabled="disabled"
+      @click="toggleAsync"
+      v-bind:class="{ active: toggled }"
+    ></button>
   </div>
 </template>
 
-<script>
-export default {
-  name: "PwaFlashlight",
-  data() {
-    return {
-      toggle: false,
-      isDisabled:false,
-      track: null
-    };
-  },
-  methods: {
-    toggleIt() {
-      if (!this.toggle) {
-        this.start();
-      } else {
-        this.stop();
-      }
-    },
-    start() {
-      this.isDisabled=true;
-      var SUPPORTS_MEDIA_DEVICES = "mediaDevices" in navigator;
-      try {
-        if (SUPPORTS_MEDIA_DEVICES) {
-          //Get the environment camera (usually the second one)
-          navigator.mediaDevices
-            .enumerateDevices()
-            .then(devices => {
-              let cameras = devices.filter(
-                device => device.kind === "videoinput"
-              );
+<script setup>
+import { ref } from 'vue'
 
-              if (cameras.length === 0) {
-                throw "No camera found on this device.";
-              }
-              let camera = cameras[cameras.length - 1];
+const toggled = ref(false)
+const disabled = ref(false)
+let track = null
 
-              // Create stream and get video track
-              navigator.mediaDevices
-                .getUserMedia({
-                  video: {
-                    deviceId: camera.deviceId,
-                    facingMode: ["user", "environment"]
-                  }
-                })
-                .then(stream => {
-                  let track = stream.getVideoTracks()[0];
-                  this.track = track;
+async function toggleAsync() {
+  toggled.value ? await stopAsync() : await startAsync()
+}
 
-                  //Create image capture object and get camera capabilities
-                  let imageCapture = new ImageCapture(track);
-                  let photoCapabilities = imageCapture
-                    .getPhotoCapabilities()
-                    .then(() => {
-                      this.isDisabled=false;
-                      this.toggle = true;
-                      track.applyConstraints({
-                        advanced: [{ torch: true }]
-                      });
-                    });
-                });
-            })
-            .catch(err => {
-              alert("Нет поддерживаемых устройств");
-            });
-        }
-      } catch (err) {
-        alert(err);
+async function startAsync() {
+  disabled.value = true
+  const SUPPORTS_MEDIA_DEVICES = 'mediaDevices' in navigator
+  try {
+    if (SUPPORTS_MEDIA_DEVICES) {
+      const devices = await navigator.mediaDevices.enumerateDevices()
+      const cameras = devices.filter((device) => device.kind === 'videoinput')
+
+      if (cameras.length === 0) {
+        throw 'No camera found on this device.'
       }
-    },
-    stop() {
-      if (this.track) {
-        this.isDisabled=true;
-        this.track.stop();
-        this.isDisabled=false;
-        this.toggle = false;
-      }
+
+      const camera = cameras.pop()
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          deviceId: camera.deviceId,
+          facingMode: ['user', 'environment'],
+        },
+      })
+
+      track = stream.getVideoTracks()[0]
+
+      await new ImageCapture(track).getPhotoCapabilities()
+
+      disabled.value = false
+      toggled.value = true
+
+      await track.applyConstraints({
+        advanced: [{ torch: true }],
+      })
     }
+  } catch (err) {
+    alert(err)
   }
-};
+}
+
+async function stopAsync() {
+  if (track) {
+    disabled.value = true
+    track.stop()
+    disabled.value = false
+    toggled.value = false
+  }
+}
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .container {
   height: 100%;
   position: relative;
   background-color: white;
 }
-
 .center {
   margin: 0;
   position: absolute;
@@ -101,10 +81,8 @@ export default {
   -ms-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
 }
-
 .btn {
   background-color: DodgerBlue;
-  /* Blue background */
   border: none;
   display: block;
   height: 300px;
@@ -112,7 +90,6 @@ export default {
   font-size: 48px;
   border-radius: 50%;
   outline: none;
-  /* Mouse pointer on hover */
 }
 .btn:active {
   -webkit-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
@@ -124,7 +101,6 @@ export default {
 .btn:hover {
   border: solid 2px #203e5f;
 }
-/* Darker background on mouse-over */
 .active {
   -webkit-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
   -moz-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
