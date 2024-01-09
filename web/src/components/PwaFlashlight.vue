@@ -51,6 +51,8 @@ async function startAsync() {
       await track.applyConstraints({
         advanced: [{ torch: true }],
       })
+    } else {
+      throw 'Устройство не поддерживается'
     }
   } catch (err) {
     alert(err)

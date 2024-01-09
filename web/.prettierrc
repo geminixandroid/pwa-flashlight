@@ -2,12 +2,5 @@
   "semi": false,
   "arrowParens": "always",
   "singleQuote": true,
-  "endOfLine": "auto",
-  "overrides": [
-    {
-      "options": {
-        "semi": true
-      }
-    }
-  ]
+  "endOfLine": "auto"
 }
