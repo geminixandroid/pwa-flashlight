@@ -29,7 +29,7 @@ async function startAsync() {
       const cameras = devices.filter((device) => device.kind === 'videoinput')
 
       if (cameras.length === 0) {
-        throw 'No camera found on this device.'
+        throw 'Камера не найдена'
       }
 
       const camera = cameras.pop()
@@ -42,8 +42,6 @@ async function startAsync() {
       })
 
       track = stream.getVideoTracks()[0]
-
-      await new ImageCapture(track).getPhotoCapabilities()
 
       disabled.value = false
       toggled.value = true
