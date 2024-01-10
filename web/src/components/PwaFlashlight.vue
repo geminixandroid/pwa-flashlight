@@ -4,7 +4,7 @@
       class="btn"
       :disabled="disabled"
       @click="toggleAsync"
-      v-bind:class="{ active: toggled }"
+      :class="{ active: toggled }"
     ></button>
   </div>
 </template>
