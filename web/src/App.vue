@@ -2,6 +2,6 @@
   <PwaFlashlight />
 </template>
 
-<script setup>
-import PwaFlashlight from "./components/PwaFlashlight.vue";
+<script setup lang="ts">
+import PwaFlashlight from './components/PwaFlashlight.vue'
 </script>

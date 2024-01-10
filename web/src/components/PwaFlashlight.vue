@@ -9,12 +9,12 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 
 const toggled = ref(false)
 const disabled = ref(false)
-let track = null
+let track: MediaStreamTrack | null = null
 
 async function toggleAsync() {
   toggled.value ? await stopAsync() : await startAsync()
@@ -32,7 +32,7 @@ async function startAsync() {
         throw 'Камера не найдена'
       }
 
-      const camera = cameras.pop()
+      const camera = cameras.pop()!
 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {

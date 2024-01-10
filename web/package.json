@@ -1,19 +1,21 @@
 {
-  "name": "web2",
+  "name": "pwa_flashlight",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vue-tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
     "vue": "^3.3.11"
   },
   "devDependencies": {
+    "@types/w3c-image-capture": "^1.0.10",
     "@vitejs/plugin-vue": "^4.5.2",
     "vite": "^5.0.8",
-    "vite-plugin-pwa": "^0.17.4"
+    "vite-plugin-pwa": "^0.17.4",
+    "vue-tsc": "^1.8.25"
   }
 }
