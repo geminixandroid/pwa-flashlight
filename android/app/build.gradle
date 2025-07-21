@@ -43,9 +43,9 @@ def twaManifest = [
 android {
     defaultConfig {
         applicationId twaManifest.applicationId
-        minSdk 29
-        versionCode 5
-        versionName "1.1.2"
+        minSdk 31
+        versionCode 6
+        versionName '1.1.3'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         // The name for the application on the Android Launcher
@@ -118,7 +118,8 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     namespace 'com.placeholder'
-    buildToolsVersion '34.0.0'
+    compileSdk 36
+    buildToolsVersion '35.0.0'
 }
 
 tasks.register('generateShorcutsFile') {
@@ -160,5 +161,5 @@ preBuild.dependsOn(generateShorcutsFile)
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.6.2'
 }
