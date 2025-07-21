@@ -43,8 +43,8 @@ def twaManifest = [
 android {
     defaultConfig {
         applicationId twaManifest.applicationId
-        minSdk 31
-        versionCode 6
+        minSdk 33
+        versionCode 8
         versionName '1.1.3'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -107,6 +107,7 @@ android {
         // The splashScreenFadeOutDuration resource is used to set the duration of fade out animation in milliseconds
         // to be played when removing splash screen. The default is 0 (no animation).
         resValue "integer", "splashScreenFadeOutDuration", twaManifest.splashScreenFadeOutDuration.toString()
+        targetSdk 36
     }
     buildTypes {
         release {
