@@ -22,7 +22,7 @@ def twaManifest = [
     applicationId: 'com.geminixandroid.pwa_flashlight',
     hostName: 'pwa-flashlight.geminixandroid.com', // The domain being opened in the TWA.
     launchUrl: '/', // The start path for the TWA. Must be relative to the domain.
-    name: 'PWA Flashligh', // The name shown on the Android Launcher.
+    name: 'PWA Flashlight', // The name shown on the Android Launcher.
     themeColor: '#303F9F', // The color used for the status bar.
     navigationColor: '#303F9F', // The color used for the navigation bar.
     backgroundColor: '#bababa', // The color used for the splash screen background.
