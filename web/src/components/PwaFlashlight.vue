@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { useFlashlight } from '../logic/flashlight.ts'
+import { useFlashlight } from '../logic/flashlight'
 
 const { toggleAsync, toggled, disabled } = useFlashlight()
 </script>
