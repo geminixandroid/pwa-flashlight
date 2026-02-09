@@ -1,9 +1,9 @@
 import { ref } from 'vue'
 
-// by convention, composable function names start with "use"
 export function useFlashlight() {
   const toggled = ref(false)
   const disabled = ref(false)
+  let stream: MediaStream | null = null
   let track: MediaStreamTrack | null = null
 
   async function toggleAsync() {
@@ -17,41 +17,74 @@ export function useFlashlight() {
 
       disabled.value = true
 
+      const tempStream = await navigator.mediaDevices.getUserMedia({
+        video: true
+      })
+
+      tempStream.getTracks().forEach(t => t.stop())
+
       const devices = await navigator.mediaDevices.enumerateDevices()
-      const [camera] = devices
-        .filter((device) => device.kind === 'videoinput')
+      const cameras = devices
+        .filter(device => device.kind === 'videoinput' && device.deviceId)
         .reverse()
 
-      if (!camera) throw 'Камера не найдена'
+      if (cameras.length === 0) throw 'Камера не найдена'
 
-      const stream = await navigator.mediaDevices.getUserMedia({
+      stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          deviceId: camera.deviceId,
-          facingMode: ['user', 'environment'],
-        },
+          deviceId: { exact: cameras[0].deviceId },
+          facingMode: { ideal: 'environment' }
+        }
       })
 
       track = stream.getVideoTracks()[0]
 
-      await track.applyConstraints({
-        advanced: [{ torch: true }],
-      })
+      if (!track) throw 'Не удалось получить видеотрек'
+
+      try {
+        await track.applyConstraints({
+          advanced: [{ torch: true }]
+        })
+      } catch (torchError) {
+       throw 'Не удалось включить вспышку'
+      }
 
       disabled.value = false
       toggled.value = true
+      
     } catch (err) {
-      alert(err)
+      console.error('Flashlight error:', err)
+      alert(typeof err === 'string' ? err : 'Ошибка включения вспышки')
+      await stopAsync()
       disabled.value = false
     }
   }
 
   async function stopAsync() {
-    if (track) {
+    try {
       disabled.value = true
-      track.stop()
-      disabled.value = false
+      
+      if (track) {
+        try {
+          await track.applyConstraints({
+            advanced: [{ torch: false }]
+          }).catch(() => {})
+        } catch (e) {}
+        
+        track.stop()
+        track = null
+      }
+      
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop())
+        stream = null
+      }
+      
       toggled.value = false
+    } finally {
+      disabled.value = false
     }
   }
+
   return { toggleAsync, toggled, disabled }
 }
