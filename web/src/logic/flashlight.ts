@@ -3,58 +3,66 @@ import { ref } from 'vue'
 export function useFlashlight() {
   const toggled = ref(false)
   const disabled = ref(false)
+  const error = ref<string | null>(null)
+  const whitescreenMode = ref(false)
+
   let stream: MediaStream | null = null
   let track: MediaStreamTrack | null = null
+  let wakeLock: WakeLockSentinel | null = null
+
+  async function acquireWakeLock() {
+    try {
+      if ('wakeLock' in navigator) {
+        wakeLock = await navigator.wakeLock.request('screen')
+      }
+    } catch {
+      // Wake Lock is not critical — silently ignore
+    }
+  }
+
+  async function releaseWakeLock() {
+    if (wakeLock) {
+      await wakeLock.release().catch(() => {})
+      wakeLock = null
+    }
+  }
 
   async function toggleAsync() {
+    error.value = null
     toggled.value ? await stopAsync() : await startAsync()
   }
 
   async function startAsync() {
     try {
-      if ('mediaDevices' in navigator === false)
-        throw 'Устройство не поддерживается'
+      if (!('mediaDevices' in navigator)) throw 'Устройство не поддерживается'
 
       disabled.value = true
-
-      const tempStream = await navigator.mediaDevices.getUserMedia({
-        video: true
-      })
-
-      tempStream.getTracks().forEach(t => t.stop())
-
-      const devices = await navigator.mediaDevices.enumerateDevices()
-      const cameras = devices
-        .filter(device => device.kind === 'videoinput' && device.deviceId)
-        .reverse()
-
-      if (cameras.length === 0) throw 'Камера не найдена'
+      whitescreenMode.value = false
 
       stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          deviceId: { exact: cameras[0].deviceId },
-          facingMode: { ideal: 'environment' }
-        }
+        video: { facingMode: { ideal: 'environment' } },
       })
 
       track = stream.getVideoTracks()[0]
-
       if (!track) throw 'Не удалось получить видеотрек'
 
       try {
-        await track.applyConstraints({
-          advanced: [{ torch: true }]
-        })
-      } catch (torchError) {
-       throw 'Не удалось включить вспышку'
+        await track.applyConstraints({ advanced: [{ torch: true } as MediaTrackConstraintSet] })
+      } catch {
+        // Torch not supported — fall back to white screen mode
+        track.stop()
+        track = null
+        stream.getTracks().forEach(t => t.stop())
+        stream = null
+        whitescreenMode.value = true
       }
 
-      disabled.value = false
+      await acquireWakeLock()
       toggled.value = true
-      
+      disabled.value = false
     } catch (err) {
       console.error('Flashlight error:', err)
-      alert(typeof err === 'string' ? err : 'Ошибка включения вспышки')
+      error.value = typeof err === 'string' ? err : 'Ошибка включения вспышки'
       await stopAsync()
       disabled.value = false
     }
@@ -63,28 +71,26 @@ export function useFlashlight() {
   async function stopAsync() {
     try {
       disabled.value = true
-      
+
+      await releaseWakeLock()
+
       if (track) {
-        try {
-          await track.applyConstraints({
-            advanced: [{ torch: false }]
-          }).catch(() => {})
-        } catch (e) {}
-        
+        await track.applyConstraints({ advanced: [{ torch: false } as MediaTrackConstraintSet] }).catch(() => {})
         track.stop()
         track = null
       }
-      
+
       if (stream) {
         stream.getTracks().forEach(t => t.stop())
         stream = null
       }
-      
+
+      whitescreenMode.value = false
       toggled.value = false
     } finally {
       disabled.value = false
     }
   }
 
-  return { toggleAsync, toggled, disabled }
+  return { toggleAsync, toggled, disabled, error, whitescreenMode }
 }

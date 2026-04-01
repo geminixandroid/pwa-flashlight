@@ -15,7 +15,7 @@ export default defineConfig({
         name: 'PWA Flashlight',
         short_name: 'PWA Flashlight',
         description: 'PWA Flashlight',
-        start_url: './index.html',
+        start_url: '/',
         display: 'standalone',
         icons: [
           {
