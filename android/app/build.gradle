@@ -44,8 +44,8 @@ android {
     defaultConfig {
         applicationId twaManifest.applicationId
         minSdk 33
-        versionCode 9
-        versionName '1.1.4'
+        versionCode 10
+        versionName '1.1.5'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         // The name for the application on the Android Launcher
@@ -107,7 +107,6 @@ android {
         // The splashScreenFadeOutDuration resource is used to set the duration of fade out animation in milliseconds
         // to be played when removing splash screen. The default is 0 (no animation).
         resValue "integer", "splashScreenFadeOutDuration", twaManifest.splashScreenFadeOutDuration.toString()
-        targetSdk 36
     }
     buildTypes {
         release {
@@ -119,8 +118,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     namespace 'com.placeholder'
-    compileSdk 36
-    buildToolsVersion '35.0.0'
+    compileSdk = 37
 }
 
 tasks.register('generateShorcutsFile') {
@@ -162,5 +160,5 @@ preBuild.dependsOn(generateShorcutsFile)
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.6.2'
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.3'
 }
