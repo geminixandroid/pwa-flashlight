@@ -44,8 +44,8 @@ android {
     defaultConfig {
         applicationId twaManifest.applicationId
         minSdk 33
-        versionCode 10
-        versionName '1.1.5'
+        versionCode 12
+        versionName '1.1.7'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         // The name for the application on the Android Launcher
@@ -107,6 +107,7 @@ android {
         // The splashScreenFadeOutDuration resource is used to set the duration of fade out animation in milliseconds
         // to be played when removing splash screen. The default is 0 (no animation).
         resValue "integer", "splashScreenFadeOutDuration", twaManifest.splashScreenFadeOutDuration.toString()
+        targetSdk 36
     }
     buildTypes {
         release {
